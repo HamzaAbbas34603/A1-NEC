@@ -10,6 +10,33 @@
 #define FLOAT_TO_INT(x) ((x)>=0?(int)((x)+0.5):(int)((x)-0.5))
 
 typedef struct {
+    int nf;
+    int ns;
+    int no;
+    double **xtable;
+    double **ytable;
+    double *xmin;
+    double *xmax;
+    double *ymin;
+    double *ymax;
+} Dataset;
+
+typedef struct {
+    int L;
+    int *n;
+    double **h;
+    double **xi;
+    double ***w;
+    double **theta;
+    double **delta;
+    double ***d_w;
+    double **d_theta;
+    double ***d_w_prev;
+    double **d_theta_prev;
+    char *fact;
+} NN;
+
+typedef struct {
     double ** values;
     double ** x_values;
     double ** y_values;
@@ -728,9 +755,7 @@ int main(int argc, char *argv[])
     init_nn();
 
     struct stat st = {0};
-    if (stat("out/", &st) == -1) {
-        mkdir("out/");
-    }
+    
     char * on_cv = "out/online_CV_result.csv";
     char * on_test = "out/online_test_result.csv";
     char * batch_cv = "out/batch_CV_result.csv";
@@ -739,31 +764,31 @@ int main(int argc, char *argv[])
 
     //ONLINE BP ALGORITHM
     ////////////////////////////////////
-    printf(nn.neurons_for_hidden_layer)
+
     //TRAINING PHASE
     int trainset_size = FLOAT_TO_INT( dataset.num_samples * trainset_size_perc / 100 );
-    // online_CV_BP_algorithm( epochs, trainset_size, n, alpha, s_min, s_max, on_cv);
+    online_CV_BP_algorithm( epochs, trainset_size, n, alpha, s_min, s_max, on_cv);
 
-    // reset_nn();
-    // //TRAINING PHASE
-    // online_BP_algorithm( epochs, trainset_size, n, alpha, s_min, s_max);
-    // //TESTING PHASE
-    // result_online = test_BP_algorithm( trainset_size, s_min, s_max, on_test);
+    reset_nn();
+    //TRAINING PHASE
+    online_BP_algorithm( epochs, trainset_size, n, alpha, s_min, s_max);
+    //TESTING PHASE
+    result_online = test_BP_algorithm( trainset_size, s_min, s_max, on_test);
 
-    // //PARTIAL BATCHED BP ALGORITHM
-    // ////////////////////////////////////
+    //PARTIAL BATCHED BP ALGORITHM
+    ////////////////////////////////////
 
-    // reset_nn();
-    // //TRAINING PHASE
-    // batched_CV_BP_algorithm( epochs, trainset_size, n, alpha, s_min, s_max, batch_cv);
+    reset_nn();
+    //TRAINING PHASE
+    batched_CV_BP_algorithm( epochs, trainset_size, n, alpha, s_min, s_max, batch_cv);
 
-    // reset_nn();
-    // //TRAINING PHASE
-    // batched_BP_algorithm( epochs, trainset_size, n, alpha, s_min, s_max);
-    // //TESTING PHASE
-    // result_batch = test_BP_algorithm( trainset_size, s_min, s_max, batch_test);
+    reset_nn();
+    //TRAINING PHASE
+    batched_BP_algorithm( epochs, trainset_size, n, alpha, s_min, s_max);
+    //TESTING PHASE
+    result_batch = test_BP_algorithm( trainset_size, s_min, s_max, batch_test);
 
-    // printf("\nResult using the online BP algorithm: %lf \nResult using the batched BP algorithm: %lf\n", result_online, result_batch);
+    printf("\nResult using the online BP algorithm: %lf \nResult using the batched BP algorithm: %lf\n", result_online, result_batch);
     
     exit( 0 );
 }
